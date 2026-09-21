@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Market brief</title>
+<title>美股 ETF 每日简报</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ground: #edeee9;
@@ -29,7 +29,7 @@
   *, *::before, *::after { box-sizing: inherit; }
   body {
     margin: 0; background: var(--ground); color: var(--ink);
-    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: "IBM Plex Mono", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 14px; line-height: 1.5;
     -webkit-text-size-adjust: 100%;
   }
@@ -37,7 +37,7 @@
 
   header { border-bottom: 2px solid var(--ink); padding-bottom: 1.4rem; }
   .verdict {
-    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-family: "Bricolage Grotesque", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     font-weight: 700; font-size: clamp(2.6rem, 11vw, 5rem);
     line-height: 0.95; letter-spacing: -0.03em; margin: 0.3rem 0 0.9rem;
   }
@@ -46,7 +46,7 @@
   .why li { margin-bottom: 0.15rem; }
 
   h2 {
-    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-family: "Bricolage Grotesque", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     font-weight: 500; font-size: 1.05rem; letter-spacing: -0.01em;
     margin: 2.4rem 0 0.6rem;
   }
@@ -75,7 +75,7 @@
   .macro-grid { display: grid; gap: 1px; background: var(--rule);
     grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); border: 1px solid var(--rule); }
   .macro-item { background: var(--panel); padding: 0.9rem 0.8rem; }
-  .macro-val { font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  .macro-val { font-family: "Bricolage Grotesque", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     font-weight: 700; font-size: 1.7rem; letter-spacing: -0.02em; }
   .macro-lbl { font-size: 12px; color: var(--muted); }
   .macro-chg { font-size: 11px; margin-top: 0.3rem; }
@@ -87,23 +87,23 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="stamp">21 September 2026, 07:49 UTC</div>
-    <h1 class="verdict">Risk on</h1>
-    <ul class="why"><li>S&P is +6.9% vs its 200-day</li><li>Stocks vs bonds over 20 days: +1.1 points</li><li>Large caps leading small caps</li><li>VIX at 14.9, calm</li></ul>
+    <div class="stamp">美股 18 Sep 2026 收盘数据</div>
+    <h1 class="verdict">偏向 Risk on</h1>
+    <ul class="why"><li>标普在200日线上方 +6.9%</li><li>20日股票跑赢债券 1.1 个百分点</li><li>大型股跑赢小型股</li><li>板块偏弱:8个板块中6个20日下跌,涨势集中在少数板块</li><li>VIX 15.0,市场平静</li></ul>
   </header>
   
       <section>
-        <h2>Broad market</h2>
+        <h2>大盘</h2>
         <div class="scroll">
         <table>
           <thead>
-            <tr><th scope="col">Fund</th><th scope="col">Last</th><th scope="col">1 day</th>
-            <th scope="col">5 days</th><th scope="col">20 days</th><th scope="col">RSI</th>
-            <th scope="col">vs 50-day</th><th scope="col">vs 200-day</th></tr>
+            <tr><th scope="col">ETF</th><th scope="col">价格</th><th scope="col">1日</th>
+            <th scope="col">5日</th><th scope="col">20日</th><th scope="col">RSI</th>
+            <th scope="col">离50日线</th><th scope="col">离200日线</th></tr>
           </thead>
           <tbody>
         <tr>
-          <th scope="row"><span class="tick">SPY</span><span class="nm">S&P 500</span></th>
+          <th scope="row"><span class="tick">SPY</span><span class="nm">标普500</span></th>
           <td class="num">761.69</td>
           <td class="num up">+0.1%</td>
           <td class="num down">-0.1%</td>
@@ -113,7 +113,7 @@
           <td class="num up">+6.9%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">QQQ</span><span class="nm">Nasdaq 100</span></th>
+          <th scope="row"><span class="tick">QQQ</span><span class="nm">纳指100</span></th>
           <td class="num">721.45</td>
           <td class="num up">+0.6%</td>
           <td class="num up">+0.9%</td>
@@ -123,7 +123,7 @@
           <td class="num up">+9.0%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">IWM</span><span class="nm">Russell 2000</span></th>
+          <th scope="row"><span class="tick">IWM</span><span class="nm">罗素2000 小型股</span></th>
           <td class="num">284.10</td>
           <td class="num down">-0.5%</td>
           <td class="num down">-1.4%</td>
@@ -137,17 +137,17 @@
       </section>
   
       <section>
-        <h2>Sectors</h2>
+        <h2>板块</h2>
         <div class="scroll">
         <table>
           <thead>
-            <tr><th scope="col">Fund</th><th scope="col">Last</th><th scope="col">1 day</th>
-            <th scope="col">5 days</th><th scope="col">20 days</th><th scope="col">RSI</th>
-            <th scope="col">vs 50-day</th><th scope="col">vs 200-day</th></tr>
+            <tr><th scope="col">ETF</th><th scope="col">价格</th><th scope="col">1日</th>
+            <th scope="col">5日</th><th scope="col">20日</th><th scope="col">RSI</th>
+            <th scope="col">离50日线</th><th scope="col">离200日线</th></tr>
           </thead>
           <tbody>
         <tr>
-          <th scope="row"><span class="tick">XLK</span><span class="nm">Technology</span></th>
+          <th scope="row"><span class="tick">XLK</span><span class="nm">科技</span></th>
           <td class="num">189.60</td>
           <td class="num up">+0.8%</td>
           <td class="num up">+1.0%</td>
@@ -157,7 +157,7 @@
           <td class="num up">+16.9%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">XLF</span><span class="nm">Financials</span></th>
+          <th scope="row"><span class="tick">XLF</span><span class="nm">金融</span></th>
           <td class="num">55.86</td>
           <td class="num down">-0.0%</td>
           <td class="num down">-2.4%</td>
@@ -167,7 +167,7 @@
           <td class="num up">+4.5%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">XLE</span><span class="nm">Energy</span></th>
+          <th scope="row"><span class="tick">XLE</span><span class="nm">能源</span></th>
           <td class="num">64.31</td>
           <td class="num down">-0.3%</td>
           <td class="num down">-1.3%</td>
@@ -177,7 +177,7 @@
           <td class="num up">+16.3%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">XLV</span><span class="nm">Health care</span></th>
+          <th scope="row"><span class="tick">XLV</span><span class="nm">医疗</span></th>
           <td class="num">168.39</td>
           <td class="num down">-0.2%</td>
           <td class="num up">+1.8%</td>
@@ -187,7 +187,7 @@
           <td class="num up">+8.5%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">XLI</span><span class="nm">Industrials</span><span class='flag'>Sitting on the 200-day</span></th>
+          <th scope="row"><span class="tick">XLI</span><span class="nm">工业</span><span class='flag'>贴近200日线</span></th>
           <td class="num">169.75</td>
           <td class="num up">+0.4%</td>
           <td class="num down">-1.5%</td>
@@ -197,7 +197,7 @@
           <td class="num down">-0.8%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">XLY</span><span class="nm">Consumer discretionary</span></th>
+          <th scope="row"><span class="tick">XLY</span><span class="nm">非必需消费</span></th>
           <td class="num">111.03</td>
           <td class="num down">-0.3%</td>
           <td class="num down">-1.7%</td>
@@ -207,7 +207,7 @@
           <td class="num down">-4.8%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">XLP</span><span class="nm">Consumer staples</span><span class='flag'>Sitting on the 200-day</span></th>
+          <th scope="row"><span class="tick">XLP</span><span class="nm">必需消费</span><span class='flag'>贴近200日线</span></th>
           <td class="num">82.80</td>
           <td class="num down">-0.8%</td>
           <td class="num down">-0.7%</td>
@@ -217,7 +217,7 @@
           <td class="num down">-0.2%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">XLU</span><span class="nm">Utilities</span><span class='flag'>Death cross</span></th>
+          <th scope="row"><span class="tick">XLU</span><span class="nm">公用事业</span><span class='flag'>死叉(近一个月)</span></th>
           <td class="num">41.10</td>
           <td class="num down">-1.4%</td>
           <td class="num down">-3.0%</td>
@@ -231,17 +231,17 @@
       </section>
   
       <section>
-        <h2>Bonds, gold, dollar</h2>
+        <h2>债券、黄金、美元</h2>
         <div class="scroll">
         <table>
           <thead>
-            <tr><th scope="col">Fund</th><th scope="col">Last</th><th scope="col">1 day</th>
-            <th scope="col">5 days</th><th scope="col">20 days</th><th scope="col">RSI</th>
-            <th scope="col">vs 50-day</th><th scope="col">vs 200-day</th></tr>
+            <tr><th scope="col">ETF</th><th scope="col">价格</th><th scope="col">1日</th>
+            <th scope="col">5日</th><th scope="col">20日</th><th scope="col">RSI</th>
+            <th scope="col">离50日线</th><th scope="col">离200日线</th></tr>
           </thead>
           <tbody>
         <tr>
-          <th scope="row"><span class="tick">TLT</span><span class="nm">20yr Treasuries</span></th>
+          <th scope="row"><span class="tick">TLT</span><span class="nm">20年美债</span></th>
           <td class="num">81.25</td>
           <td class="num down">-0.6%</td>
           <td class="num up">+0.5%</td>
@@ -251,7 +251,7 @@
           <td class="num down">-3.7%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">GLD</span><span class="nm">Gold</span></th>
+          <th scope="row"><span class="tick">GLD</span><span class="nm">黄金</span></th>
           <td class="num">401.17</td>
           <td class="num up">+0.7%</td>
           <td class="num up">+0.6%</td>
@@ -261,7 +261,7 @@
           <td class="num down">-3.6%</td>
         </tr>
         <tr>
-          <th scope="row"><span class="tick">UUP</span><span class="nm">US dollar</span></th>
+          <th scope="row"><span class="tick">UUP</span><span class="nm">美元</span></th>
           <td class="num">28.39</td>
           <td class="num up">+0.0%</td>
           <td class="num up">+1.1%</td>
@@ -275,8 +275,8 @@
       </section>
   
   <footer>
-    Prices from Yahoo Finance, delayed. Rates from FRED.
-    This page reports numbers; it does not tell you what to buy.
+    价格来自 Yahoo Finance(延迟),利率来自 FRED。
+    这里只整理数据,不构成买卖建议。
   </footer>
 </div>
 </body>
