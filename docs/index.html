@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Market brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #edeee9;
+    --ink: #1b2a2f;
+    --muted: #6b7a7f;
+    --rule: #c9cdc5;
+    --up: #0e6f52;
+    --down: #a83c2c;
+    --panel: #f6f7f3;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141a1c; --ink: #e6e9e3; --muted: #8b9a9e;
+      --rule: #2b3639; --up: #4fbf92; --down: #e07a63; --panel: #1b2325;
+    }
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px; line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
+
+  header { border-bottom: 2px solid var(--ink); padding-bottom: 1.4rem; }
+  .verdict {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-weight: 700; font-size: clamp(2.6rem, 11vw, 5rem);
+    line-height: 0.95; letter-spacing: -0.03em; margin: 0.3rem 0 0.9rem;
+  }
+  .stamp { color: var(--muted); font-size: 12px; }
+  .why { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: 13px; }
+  .why li { margin-bottom: 0.15rem; }
+
+  h2 {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-weight: 500; font-size: 1.05rem; letter-spacing: -0.01em;
+    margin: 2.4rem 0 0.6rem;
+  }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 40rem; }
+  th, td { text-align: right; padding: 0.5rem 0.45rem; border-bottom: 1px solid var(--rule); }
+  thead th {
+    font-weight: 500; font-size: 11px; color: var(--muted);
+    border-bottom: 1px solid var(--ink); white-space: nowrap;
+  }
+  tbody th { text-align: left; font-weight: 400; }
+  .tick { font-weight: 600; margin-right: 0.5rem; }
+  .nm { color: var(--muted); font-size: 12px; }
+  .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .up { color: var(--up); }
+  .down { color: var(--down); }
+  .flat { color: var(--muted); }
+  .rsi.hot { color: var(--down); font-weight: 600; }
+  .rsi.cold { color: var(--up); font-weight: 600; }
+  .flag {
+    display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.4rem;
+    border: 1px solid var(--rule); border-radius: 2px;
+    font-size: 10px; color: var(--muted);
+  }
+
+  .macro-grid { display: grid; gap: 1px; background: var(--rule);
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); border: 1px solid var(--rule); }
+  .macro-item { background: var(--panel); padding: 0.9rem 0.8rem; }
+  .macro-val { font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-weight: 700; font-size: 1.7rem; letter-spacing: -0.02em; }
+  .macro-lbl { font-size: 12px; color: var(--muted); }
+  .macro-chg { font-size: 11px; margin-top: 0.3rem; }
+
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--rule);
+    color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="stamp">21 September 2026, 07:49 UTC</div>
+    <h1 class="verdict">Risk on</h1>
+    <ul class="why"><li>S&P is +6.9% vs its 200-day</li><li>Stocks vs bonds over 20 days: +1.1 points</li><li>Large caps leading small caps</li><li>VIX at 14.9, calm</li></ul>
+  </header>
+  
+      <section>
+        <h2>Broad market</h2>
+        <div class="scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">Fund</th><th scope="col">Last</th><th scope="col">1 day</th>
+            <th scope="col">5 days</th><th scope="col">20 days</th><th scope="col">RSI</th>
+            <th scope="col">vs 50-day</th><th scope="col">vs 200-day</th></tr>
+          </thead>
+          <tbody>
+        <tr>
+          <th scope="row"><span class="tick">SPY</span><span class="nm">S&P 500</span></th>
+          <td class="num">761.69</td>
+          <td class="num up">+0.1%</td>
+          <td class="num down">-0.1%</td>
+          <td class="num up">+0.1%</td>
+          <td class="num rsi ">51</td>
+          <td class="num up">+0.5%</td>
+          <td class="num up">+6.9%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">QQQ</span><span class="nm">Nasdaq 100</span></th>
+          <td class="num">721.45</td>
+          <td class="num up">+0.6%</td>
+          <td class="num up">+0.9%</td>
+          <td class="num up">+1.5%</td>
+          <td class="num rsi ">56</td>
+          <td class="num up">+1.6%</td>
+          <td class="num up">+9.0%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">IWM</span><span class="nm">Russell 2000</span></th>
+          <td class="num">284.10</td>
+          <td class="num down">-0.5%</td>
+          <td class="num down">-1.4%</td>
+          <td class="num down">-4.3%</td>
+          <td class="num rsi ">35</td>
+          <td class="num down">-3.5%</td>
+          <td class="num up">+3.9%</td>
+        </tr></tbody>
+        </table>
+        </div>
+      </section>
+  
+      <section>
+        <h2>Sectors</h2>
+        <div class="scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">Fund</th><th scope="col">Last</th><th scope="col">1 day</th>
+            <th scope="col">5 days</th><th scope="col">20 days</th><th scope="col">RSI</th>
+            <th scope="col">vs 50-day</th><th scope="col">vs 200-day</th></tr>
+          </thead>
+          <tbody>
+        <tr>
+          <th scope="row"><span class="tick">XLK</span><span class="nm">Technology</span></th>
+          <td class="num">189.60</td>
+          <td class="num up">+0.8%</td>
+          <td class="num up">+1.0%</td>
+          <td class="num up">+3.5%</td>
+          <td class="num rsi ">58</td>
+          <td class="num up">+3.5%</td>
+          <td class="num up">+16.9%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">XLF</span><span class="nm">Financials</span></th>
+          <td class="num">55.86</td>
+          <td class="num down">-0.0%</td>
+          <td class="num down">-2.4%</td>
+          <td class="num down">-1.9%</td>
+          <td class="num rsi ">37</td>
+          <td class="num down">-2.3%</td>
+          <td class="num up">+4.5%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">XLE</span><span class="nm">Energy</span></th>
+          <td class="num">64.31</td>
+          <td class="num down">-0.3%</td>
+          <td class="num down">-1.3%</td>
+          <td class="num up">+0.9%</td>
+          <td class="num rsi ">56</td>
+          <td class="num up">+5.1%</td>
+          <td class="num up">+16.3%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">XLV</span><span class="nm">Health care</span></th>
+          <td class="num">168.39</td>
+          <td class="num down">-0.2%</td>
+          <td class="num up">+1.8%</td>
+          <td class="num down">-2.3%</td>
+          <td class="num rsi ">50</td>
+          <td class="num up">+1.0%</td>
+          <td class="num up">+8.5%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">XLI</span><span class="nm">Industrials</span><span class='flag'>Sitting on the 200-day</span></th>
+          <td class="num">169.75</td>
+          <td class="num up">+0.4%</td>
+          <td class="num down">-1.5%</td>
+          <td class="num down">-5.6%</td>
+          <td class="num rsi ">34</td>
+          <td class="num down">-5.2%</td>
+          <td class="num down">-0.8%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">XLY</span><span class="nm">Consumer discretionary</span></th>
+          <td class="num">111.03</td>
+          <td class="num down">-0.3%</td>
+          <td class="num down">-1.7%</td>
+          <td class="num down">-4.8%</td>
+          <td class="num rsi ">38</td>
+          <td class="num down">-3.8%</td>
+          <td class="num down">-4.8%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">XLP</span><span class="nm">Consumer staples</span><span class='flag'>Sitting on the 200-day</span></th>
+          <td class="num">82.80</td>
+          <td class="num down">-0.8%</td>
+          <td class="num down">-0.7%</td>
+          <td class="num down">-3.0%</td>
+          <td class="num rsi ">39</td>
+          <td class="num down">-2.5%</td>
+          <td class="num down">-0.2%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">XLU</span><span class="nm">Utilities</span><span class='flag'>Death cross</span></th>
+          <td class="num">41.10</td>
+          <td class="num down">-1.4%</td>
+          <td class="num down">-3.0%</td>
+          <td class="num down">-6.1%</td>
+          <td class="num rsi ">31</td>
+          <td class="num down">-6.2%</td>
+          <td class="num down">-7.1%</td>
+        </tr></tbody>
+        </table>
+        </div>
+      </section>
+  
+      <section>
+        <h2>Bonds, gold, dollar</h2>
+        <div class="scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">Fund</th><th scope="col">Last</th><th scope="col">1 day</th>
+            <th scope="col">5 days</th><th scope="col">20 days</th><th scope="col">RSI</th>
+            <th scope="col">vs 50-day</th><th scope="col">vs 200-day</th></tr>
+          </thead>
+          <tbody>
+        <tr>
+          <th scope="row"><span class="tick">TLT</span><span class="nm">20yr Treasuries</span></th>
+          <td class="num">81.25</td>
+          <td class="num down">-0.6%</td>
+          <td class="num up">+0.5%</td>
+          <td class="num down">-0.9%</td>
+          <td class="num rsi ">44</td>
+          <td class="num down">-1.2%</td>
+          <td class="num down">-3.7%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">GLD</span><span class="nm">Gold</span></th>
+          <td class="num">401.17</td>
+          <td class="num up">+0.7%</td>
+          <td class="num up">+0.6%</td>
+          <td class="num down">-3.4%</td>
+          <td class="num rsi ">51</td>
+          <td class="num up">+2.1%</td>
+          <td class="num down">-3.6%</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="tick">UUP</span><span class="nm">US dollar</span></th>
+          <td class="num">28.39</td>
+          <td class="num up">+0.0%</td>
+          <td class="num up">+1.1%</td>
+          <td class="num up">+1.7%</td>
+          <td class="num rsi ">63</td>
+          <td class="num up">+0.7%</td>
+          <td class="num up">+2.6%</td>
+        </tr></tbody>
+        </table>
+        </div>
+      </section>
+  
+  <footer>
+    Prices from Yahoo Finance, delayed. Rates from FRED.
+    This page reports numbers; it does not tell you what to buy.
+  </footer>
+</div>
+</body>
+</html>
