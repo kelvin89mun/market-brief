@@ -30,26 +30,26 @@ import pandas as pd
 # --------------------------------------------------------------------------
 
 BROAD = {
-    "SPY": "S&P 500",
-    "QQQ": "Nasdaq 100",
-    "IWM": "Russell 2000",
+    "SPY": "标普500",
+    "QQQ": "纳指100",
+    "IWM": "罗素2000 小型股",
 }
 
 SECTORS = {
-    "XLK": "Technology",
-    "XLF": "Financials",
-    "XLE": "Energy",
-    "XLV": "Health care",
-    "XLI": "Industrials",
-    "XLY": "Consumer discretionary",
-    "XLP": "Consumer staples",
-    "XLU": "Utilities",
+    "XLK": "科技",
+    "XLF": "金融",
+    "XLE": "能源",
+    "XLV": "医疗",
+    "XLI": "工业",
+    "XLY": "非必需消费",
+    "XLP": "必需消费",
+    "XLU": "公用事业",
 }
 
 DEFENSIVE = {
-    "TLT": "20yr Treasuries",
-    "GLD": "Gold",
-    "UUP": "US dollar",
+    "TLT": "20年美债",
+    "GLD": "黄金",
+    "UUP": "美元",
 }
 
 VOL = {"^VIX": "VIX"}
@@ -58,10 +58,10 @@ ALL_TICKERS = {**BROAD, **SECTORS, **DEFENSIVE, **VOL}
 
 # FRED series -> label. Free API key: https://fred.stlouisfed.org/docs/api/api_key.html
 FRED_SERIES = {
-    "DGS10": "10-year yield",
-    "DGS2": "2-year yield",
-    "T10Y2Y": "10y minus 2y spread",
-    "DFF": "Fed funds rate",
+    "DGS10": "10年期殖利率",
+    "DGS2": "2年期殖利率",
+    "T10Y2Y": "10年减2年利差",
+    "DFF": "联邦基金利率",
 }
 
 OUT_HTML = os.path.join("docs", "index.html")
@@ -102,22 +102,19 @@ def ma_distance(series: pd.Series, window: int) -> float:
     return float((s.iloc[-1] / ma - 1) * 100)
 
 
-def cross_state(series: pd.Series) -> str:
-    """Golden cross / death cross, and whether it is recent."""
+def cross_state(series: pd.Series) -> tuple[str, str | None]:
+    """Where the 50-day sits vs the 200-day, and whether it crossed in the last month."""
     s = series.dropna()
-    if len(s) < 200:
-        return "n/a"
+    if len(s) < 221:
+        return "n/a", None
     ma50 = s.rolling(50).mean()
     ma200 = s.rolling(200).mean()
-    above = ma50 > ma200
-    if not bool(above.iloc[-1]):
-        state = "50 below 200"
-    else:
-        state = "50 above 200"
-    flipped = above.iloc[-20:] != above.iloc[-21:-1].values
-    if bool(flipped.any()):
-        state += " (crossed in last month)"
-    return state
+    above = (ma50 > ma200).iloc[-21:]
+    state = "50日线在200日线上方" if bool(above.iloc[-1]) else "50日线在200日线下方"
+    recent = None
+    if bool((above.iloc[1:].values != above.iloc[:-1].values).any()):
+        recent = "金叉(近一个月)" if bool(above.iloc[-1]) else "死叉(近一个月)"
+    return state, recent
 
 
 @dataclass
@@ -148,17 +145,17 @@ def build_row(ticker: str, name: str, group: str, closes: pd.Series) -> Row:
     r.rsi14 = rsi(s)
     r.d_ma50 = ma_distance(s, 50)
     r.d_ma200 = ma_distance(s, 200)
-    r.cross = cross_state(s)
+    r.cross, recent = cross_state(s)
 
     if r.rsi14 == r.rsi14:  # not nan
         if r.rsi14 >= 70:
-            r.flags.append("RSI overbought")
+            r.flags.append("RSI 超买")
         elif r.rsi14 <= 30:
-            r.flags.append("RSI oversold")
-    if "crossed in last month" in r.cross:
-        r.flags.append("Golden cross" if "50 above" in r.cross else "Death cross")
+            r.flags.append("RSI 超卖")
+    if recent:
+        r.flags.append(recent)
     if r.d_ma200 == r.d_ma200 and abs(r.d_ma200) < 1.0:
-        r.flags.append("Sitting on the 200-day")
+        r.flags.append("贴近200日线")
     return r
 
 
@@ -173,57 +170,63 @@ def regime(rows: dict[str, Row]) -> tuple[str, list[str]]:
 
     spy = rows.get("SPY")
     if spy and spy.d_ma200 == spy.d_ma200:
-        if spy.d_ma200 > 0:
-            score += 1
-            evidence.append(f"S&P is {spy.d_ma200:+.1f}% vs its 200-day")
-        else:
-            score -= 1
-            evidence.append(f"S&P is {spy.d_ma200:+.1f}% vs its 200-day")
+        score += 1 if spy.d_ma200 > 0 else -1
+        where = "上方" if spy.d_ma200 > 0 else "下方"
+        evidence.append(f"标普在200日线{where} {spy.d_ma200:+.1f}%")
 
     spy20 = rows["SPY"].chg_20d if "SPY" in rows else float("nan")
     tlt20 = rows["TLT"].chg_20d if "TLT" in rows else float("nan")
     if spy20 == spy20 and tlt20 == tlt20:
         gap = spy20 - tlt20
-        if gap > 0:
-            score += 1
-        else:
-            score -= 1
-        evidence.append(f"Stocks vs bonds over 20 days: {gap:+.1f} points")
+        score += 1 if gap > 0 else -1
+        who = "股票跑赢债券" if gap > 0 else "债券跑赢股票"
+        evidence.append(f"20日{who} {abs(gap):.1f} 个百分点")
 
     iwm20 = rows["IWM"].chg_20d if "IWM" in rows else float("nan")
     if iwm20 == iwm20 and spy20 == spy20:
         if iwm20 > spy20:
             score += 1
-            evidence.append("Small caps leading large caps")
+            evidence.append("小型股跑赢大型股")
         else:
-            evidence.append("Large caps leading small caps")
+            evidence.append("大型股跑赢小型股")
+
+    # Breadth: is the rally broad, or carried by a few sectors?
+    sec = [rows[t] for t in SECTORS if t in rows and rows[t].chg_20d == rows[t].chg_20d]
+    if sec:
+        up = sum(1 for r in sec if r.chg_20d > 0)
+        down = len(sec) - up
+        if down > len(sec) / 2:
+            score -= 1
+            evidence.append(f"板块偏弱:{len(sec)}个板块中{down}个20日下跌,涨势集中在少数板块")
+        else:
+            evidence.append(f"{len(sec)}个板块中{up}个20日上涨")
 
     vix = rows.get("^VIX")
     if vix and vix.last == vix.last:
         if vix.last < 16:
             score += 1
-            evidence.append(f"VIX at {vix.last:.1f}, calm")
+            evidence.append(f"VIX {vix.last:.1f},市场平静")
         elif vix.last > 25:
             score -= 2
-            evidence.append(f"VIX at {vix.last:.1f}, stressed")
+            evidence.append(f"VIX {vix.last:.1f},市场紧张")
         else:
-            evidence.append(f"VIX at {vix.last:.1f}")
+            evidence.append(f"VIX {vix.last:.1f}")
 
     gld = rows.get("GLD")
     if gld and gld.chg_20d == gld.chg_20d and spy20 == spy20 and gld.chg_20d > spy20 + 3:
         score -= 1
-        evidence.append("Gold outrunning stocks")
+        evidence.append("黄金明显跑赢股票")
 
     if score >= 3:
-        label = "Risk on"
+        label = "Risk on 进攻"
     elif score >= 1:
-        label = "Leaning risk on"
+        label = "偏向 Risk on"
     elif score >= -1:
-        label = "Mixed"
+        label = "多空分歧"
     elif score >= -3:
-        label = "Leaning risk off"
+        label = "偏向 Risk off"
     else:
-        label = "Risk off"
+        label = "Risk off 防守"
     return label, evidence
 
 
@@ -325,17 +328,18 @@ def fmt_pct(v: float, digits: int = 1) -> str:
 
 
 def build_message(rows: dict[str, Row], macro: dict, label: str,
-                  evidence: list[str], page_url: str | None) -> str:
-    today = datetime.now(timezone.utc).strftime("%d %b %Y")
-    lines = [f"<b>{label}</b> · {today}", ""]
+                  evidence: list[str], page_url: str | None, data_date: str) -> str:
+    lines = [f"<b>{label}</b>", f"数据:美股 {data_date} 收盘", ""]
 
     for t in BROAD:
         r = rows[t]
-        lines.append(f"{r.ticker} {r.last:,.2f}  {fmt_pct(r.chg_1d)}   "
-                     f"5d {fmt_pct(r.chg_5d)}  RSI {r.rsi14:.0f}")
+        if r.last != r.last:
+            continue
+        lines.append(f"<b>{r.ticker}</b> {r.last:,.2f}  {fmt_pct(r.chg_1d)}  "
+                     f"5日 {fmt_pct(r.chg_5d)}  RSI {r.rsi14:.0f}")
     vix = rows.get("^VIX")
     if vix and vix.last == vix.last:
-        lines.append(f"VIX {vix.last:.1f}")
+        lines.append(f"<b>VIX</b> {vix.last:.1f}")
 
     ranked = sorted(
         (rows[t] for t in SECTORS if rows[t].chg_20d == rows[t].chg_20d),
@@ -343,28 +347,25 @@ def build_message(rows: dict[str, Row], macro: dict, label: str,
         reverse=True,
     )
     if ranked:
-        lines += ["", "<b>Sectors, 20 days</b>"]
-        for r in ranked[:3]:
-            lines.append(f"  {r.ticker} {r.name} {fmt_pct(r.chg_20d)}")
-        lines.append("  ...")
-        for r in ranked[-2:]:
+        lines += ["", "<b>板块 20日表现</b>"]
+        for r in ranked:
             lines.append(f"  {r.ticker} {r.name} {fmt_pct(r.chg_20d)}")
 
     flagged = [r for r in rows.values() if r.flags]
     if flagged:
-        lines += ["", "<b>Worth a look</b>"]
+        lines += ["", "<b>值得留意</b>"]
         for r in flagged:
-            lines.append(f"  {r.ticker}: {', '.join(r.flags)}")
+            lines.append(f"  {r.ticker} {r.name}:{'、'.join(r.flags)}")
 
     if macro:
-        lines += ["", "<b>Macro</b>"]
-        for sid, m in macro.items():
+        lines += ["", "<b>利率</b>"]
+        for m in macro.values():
             arrow = "↑" if m["change"] > 0.01 else ("↓" if m["change"] < -0.01 else "→")
-            lines.append(f"  {m['label']}: {m['value']:.2f} {arrow} ({m['change']:+.2f} in a month)")
+            lines.append(f"  {m['label']} {m['value']:.2f}% {arrow}(一个月 {m['change']:+.2f})")
 
-    lines += ["", "<i>Why:</i> " + "; ".join(evidence)]
+    lines += ["", "<b>判断依据</b>"] + [f"  · {e}" for e in evidence]
     if page_url:
-        lines += ["", f"Full table: {page_url}"]
+        lines += ["", f"完整表格:{page_url}"]
     return "\n".join(lines)
 
 
@@ -397,8 +398,9 @@ def table_rows(rows: list[Row]) -> str:
     return "".join(out)
 
 
-def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str]) -> str:
-    stamp = datetime.now(timezone.utc).strftime("%d %B %Y, %H:%M UTC")
+def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str],
+               data_date: str) -> str:
+    stamp = f"美股 {data_date} 收盘数据"
 
     macro_html = ""
     if macro:
@@ -406,9 +408,9 @@ def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str
         <div class="macro-item">
           <div class="macro-val">{m['value']:.2f}</div>
           <div class="macro-lbl">{m['label']}</div>
-          <div class="macro-chg {cls(m['change'])}">{m['change']:+.2f} over a month</div>
+          <div class="macro-chg {cls(m['change'])}">一个月 {m['change']:+.2f}</div>
         </div>""" for m in macro.values())
-        macro_html = f"<section class='macro'><h2>Rates</h2><div class='macro-grid'>{cards}</div></section>"
+        macro_html = f"<section class='macro'><h2>利率</h2><div class='macro-grid'>{cards}</div></section>"
 
     ev = "".join(f"<li>{e}</li>" for e in evidence)
 
@@ -420,9 +422,9 @@ def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str
         <div class="scroll">
         <table>
           <thead>
-            <tr><th scope="col">Fund</th><th scope="col">Last</th><th scope="col">1 day</th>
-            <th scope="col">5 days</th><th scope="col">20 days</th><th scope="col">RSI</th>
-            <th scope="col">vs 50-day</th><th scope="col">vs 200-day</th></tr>
+            <tr><th scope="col">ETF</th><th scope="col">价格</th><th scope="col">1日</th>
+            <th scope="col">5日</th><th scope="col">20日</th><th scope="col">RSI</th>
+            <th scope="col">离50日线</th><th scope="col">离200日线</th></tr>
           </thead>
           <tbody>{body}</tbody>
         </table>
@@ -430,14 +432,14 @@ def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str
       </section>"""
 
     return f"""<!doctype html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Market brief</title>
+<title>美股 ETF 每日简报</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {{
     --ground: #edeee9;
@@ -460,7 +462,7 @@ def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str
   *, *::before, *::after {{ box-sizing: inherit; }}
   body {{
     margin: 0; background: var(--ground); color: var(--ink);
-    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: "IBM Plex Mono", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 14px; line-height: 1.5;
     -webkit-text-size-adjust: 100%;
   }}
@@ -468,7 +470,7 @@ def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str
 
   header {{ border-bottom: 2px solid var(--ink); padding-bottom: 1.4rem; }}
   .verdict {{
-    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-family: "Bricolage Grotesque", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     font-weight: 700; font-size: clamp(2.6rem, 11vw, 5rem);
     line-height: 0.95; letter-spacing: -0.03em; margin: 0.3rem 0 0.9rem;
   }}
@@ -477,7 +479,7 @@ def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str
   .why li {{ margin-bottom: 0.15rem; }}
 
   h2 {{
-    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-family: "Bricolage Grotesque", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     font-weight: 500; font-size: 1.05rem; letter-spacing: -0.01em;
     margin: 2.4rem 0 0.6rem;
   }}
@@ -506,7 +508,7 @@ def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str
   .macro-grid {{ display: grid; gap: 1px; background: var(--rule);
     grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); border: 1px solid var(--rule); }}
   .macro-item {{ background: var(--panel); padding: 0.9rem 0.8rem; }}
-  .macro-val {{ font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  .macro-val {{ font-family: "Bricolage Grotesque", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     font-weight: 700; font-size: 1.7rem; letter-spacing: -0.02em; }}
   .macro-lbl {{ font-size: 12px; color: var(--muted); }}
   .macro-chg {{ font-size: 11px; margin-top: 0.3rem; }}
@@ -522,13 +524,13 @@ def build_page(rows: dict[str, Row], macro: dict, label: str, evidence: list[str
     <h1 class="verdict">{label}</h1>
     <ul class="why">{ev}</ul>
   </header>
-  {section("Broad market", BROAD)}
-  {section("Sectors", SECTORS)}
-  {section("Bonds, gold, dollar", DEFENSIVE)}
+  {section("大盘", BROAD)}
+  {section("板块", SECTORS)}
+  {section("债券、黄金、美元", DEFENSIVE)}
   {macro_html}
   <footer>
-    Prices from Yahoo Finance, delayed. Rates from FRED.
-    This page reports numbers; it does not tell you what to buy.
+    价格来自 Yahoo Finance(延迟),利率来自 FRED。
+    这里只整理数据,不构成买卖建议。
   </footer>
 </div>
 </body>
@@ -554,19 +556,22 @@ def main() -> int:
     macro = {} if args.demo else load_macro(os.environ.get("FRED_API_KEY"))
     if args.demo:
         macro = {
-            "DGS10": {"label": "10-year yield", "value": 4.21, "change": 0.13, "date": "demo"},
-            "T10Y2Y": {"label": "10y minus 2y spread", "value": 0.55, "change": -0.08, "date": "demo"},
+            "DGS10": {"label": "10年期殖利率", "value": 4.21, "change": 0.13, "date": "demo"},
+            "T10Y2Y": {"label": "10年减2年利差", "value": 0.55, "change": -0.08, "date": "demo"},
         }
 
     label, evidence = regime(rows)
 
+    spy_idx = closes["SPY"].dropna().index if "SPY" in closes.columns else closes.index
+    data_date = pd.Timestamp(spy_idx[-1]).strftime("%-d %b %Y") if len(spy_idx) else "?"
+
     os.makedirs("docs", exist_ok=True)
     with open(OUT_HTML, "w", encoding="utf-8") as fh:
-        fh.write(build_page(rows, macro, label, evidence))
+        fh.write(build_page(rows, macro, label, evidence, data_date))
     print(f"wrote {OUT_HTML}")
 
     page_url = os.environ.get("PAGE_URL")
-    text = build_message(rows, macro, label, evidence, page_url)
+    text = build_message(rows, macro, label, evidence, page_url, data_date)
 
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_id = os.environ.get("TELEGRAM_CHAT_ID")
